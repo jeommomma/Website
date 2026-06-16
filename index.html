@@ -32,7 +32,6 @@
       outline: none;
     }
     #search:focus { border-color: #555; }
-
     #count { color: #888; font-size: 13px; flex: 1; }
 
     .sort-select {
@@ -60,39 +59,162 @@
     .view-btn.active { background: #2e2e2e; border-color: #555; color: #fff; }
     .view-btn:hover { background: #2a2a2a; }
 
-    /* SELECT BAR */
-    .select-bar {
-      background: #1a2a3a;
-      border: 1px solid #2a4a6a;
-      border-radius: 10px;
-      padding: 10px 14px;
+    /* ===== INLINE VIEWER ===== */
+    .viewer {
       display: none;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-      font-size: 13px;
+      background: #0a0a0a;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      border: 1px solid #222;
     }
-    .select-bar.visible { display: flex; }
-    .sel-btn {
-      background: #2a4a7a;
-      border: 1px solid #4a7aba;
-      border-radius: 6px;
-      color: #7ab4f4;
+    .viewer.open { display: block; }
+
+    .viewer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #141414;
+      border-bottom: 1px solid #222;
+    }
+    .viewer-title { font-size: 13px; color: #ccc; font-weight: 500; }
+    .viewer-actions { display: flex; gap: 6px; }
+    .vbtn {
+      background: #222;
+      border: 1px solid #333;
+      border-radius: 7px;
+      color: #ccc;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 13px;
       padding: 5px 10px;
       transition: .15s;
+      line-height: 1;
     }
-    .sel-btn:hover { background: #3a5a9a; }
+    .vbtn:hover { background: #2e2e2e; color: #fff; }
+    .vbtn.active { background: #5a1a1a; border-color: #a03030; color: #ff8080; }
+    .vbtn.close-btn { font-size: 16px; padding: 4px 9px; }
 
-    /* GALLERY */
-    .gallery {
-      display: grid;
-      gap: 10px;
+    /* Main image */
+    .viewer-img-area {
+      position: relative;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
     }
-    .gallery.grid-small { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
-    .gallery.grid-medium { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
-    .gallery.grid-large { grid-template-columns: 1fr; }
+    .viewer-img-area img {
+      max-width: 100%;
+      max-height: 60vh;
+      object-fit: contain;
+      display: block;
+      cursor: zoom-in;
+      transition: transform .2s;
+    }
+    .viewer-img-area img.zoomed {
+      max-width: none;
+      max-height: none;
+      width: 180%;
+      cursor: zoom-out;
+      overflow: hidden;
+    }
+
+    .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
+      font-size: 20px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: .15s;
+      z-index: 2;
+      line-height: 1;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,.22); }
+    .nav-btn.left { left: 12px; }
+    .nav-btn.right { right: 12px; }
+
+    .viewer-counter {
+      position: absolute;
+      bottom: 10px;
+      right: 14px;
+      background: rgba(0,0,0,.6);
+      border-radius: 20px;
+      font-size: 11px;
+      color: #999;
+      padding: 3px 10px;
+      pointer-events: none;
+    }
+
+    /* Preview strip below image */
+    .preview-strip {
+      background: #0e0e0e;
+      border-top: 1px solid #1e1e1e;
+      padding: 12px 14px 14px;
+    }
+    .preview-strip-label {
+      font-size: 10px;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 10px;
+    }
+    .preview-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: thin;
+      scrollbar-color: #333 transparent;
+      padding-bottom: 4px;
+    }
+    .preview-row::-webkit-scrollbar { height: 3px; }
+    .preview-row::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+    .preview-card {
+      flex: 0 0 110px;
+      cursor: pointer;
+      scroll-snap-align: start;
+      border-radius: 7px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      opacity: .45;
+      transition: opacity .2s, border-color .2s, transform .15s;
+    }
+    .preview-card:hover { opacity: .75; transform: translateY(-2px); }
+    .preview-card.active { opacity: 1; border-color: #fff; }
+
+    .preview-card img {
+      width: 110px;
+      height: 72px;
+      object-fit: cover;
+      display: block;
+    }
+    .preview-card-name {
+      background: #1a1a1a;
+      font-size: 10px;
+      color: #888;
+      padding: 4px 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .preview-card.active .preview-card-name { color: #ddd; }
+
+    /* ===== GALLERY GRID ===== */
+    .gallery { display: grid; gap: 10px; }
+    .gallery.grid-small  { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    .gallery.grid-medium { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .gallery.grid-large  { grid-template-columns: 1fr; }
 
     .card {
       position: relative;
@@ -108,7 +230,6 @@
       object-fit: cover;
       transition: .25s;
       user-select: none;
-      draggable: false;
     }
     .card:hover img { transform: scale(1.04); }
 
@@ -125,50 +246,25 @@
     }
     .card:hover .card-overlay { opacity: 1; }
     .card-name { font-size: 12px; color: #eee; font-weight: 500; }
-    .card-idx { font-size: 10px; color: #aaa; }
+    .card-idx  { font-size: 10px; color: #aaa; }
 
     .fav-btn {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: 8px; right: 8px;
       background: rgba(0,0,0,.5);
       border: none;
       border-radius: 50%;
-      width: 30px;
-      height: 30px;
+      width: 28px; height: 28px;
       cursor: pointer;
-      font-size: 15px;
+      font-size: 14px;
       display: none;
       align-items: center;
       justify-content: center;
-      transition: .15s;
       color: #fff;
     }
-    .card:hover .fav-btn,
-    .fav-btn.active { display: flex; }
-    .fav-btn.active { background: rgba(220,60,60,.8); }
+    .card:hover .fav-btn, .fav-btn.active { display: flex; }
+    .fav-btn.active { background: rgba(200,50,50,.8); }
 
-    .select-check {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      width: 22px;
-      height: 22px;
-      border: 2px solid rgba(255,255,255,.6);
-      border-radius: 6px;
-      background: rgba(0,0,0,.3);
-      cursor: pointer;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      transition: .15s;
-    }
-    .card:hover .select-check,
-    .select-mode .select-check { display: flex; }
-    .select-check.checked { background: #4a90e2; border-color: #4a90e2; }
-
-    /* EMPTY */
     .empty {
       color: #555;
       font-size: 14px;
@@ -176,192 +272,12 @@
       padding: 60px 20px;
       display: none;
     }
-
-    /* ===== LIGHTBOX ===== */
-    .lightbox {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.97);
-      display: none;
-      flex-direction: column;
-      z-index: 9999;
-      user-select: none;
-      overflow: hidden;
-    }
-
-    /* Header */
-    .lb-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 20px;
-      background: rgba(0,0,0,.6);
-      flex-shrink: 0;
-    }
-    .lb-title { font-size: 13px; color: #ccc; font-weight: 500; }
-    .lb-actions { display: flex; gap: 8px; align-items: center; }
-    .lb-btn {
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 8px;
-      color: #fff;
-      cursor: pointer;
-      font-size: 18px;
-      padding: 6px 10px;
-      transition: .15s;
-      line-height: 1;
-    }
-    .lb-btn:hover { background: rgba(255,255,255,.2); }
-    .lb-btn.active { background: rgba(220,60,60,.6); border-color: rgba(220,60,60,.8); }
-
-    /* Main image area */
-    .lb-main {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      min-height: 0;
-      padding: 16px 60px;
-    }
-
-    .lb-img-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-    }
-    .lb-img-wrap img {
-      max-width: 100%;
-      max-height: 100%;
-      border-radius: 10px;
-      object-fit: contain;
-      cursor: zoom-in;
-      transition: opacity .2s;
-    }
-    .lb-img-wrap img.zoomed {
-      max-width: none;
-      max-height: none;
-      width: 200%;
-      cursor: zoom-out;
-    }
-
-    .nav-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.15);
-      border-radius: 50%;
-      color: #fff;
-      cursor: pointer;
-      font-size: 22px;
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: .15s;
-      z-index: 2;
-    }
-    .nav-btn:hover { background: rgba(255,255,255,.22); }
-    .nav-btn.left { left: 10px; }
-    .nav-btn.right { right: 10px; }
-
-    .slide-counter {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,.55);
-      border-radius: 20px;
-      font-size: 12px;
-      color: #bbb;
-      padding: 3px 12px;
-      pointer-events: none;
-    }
-
-    .zoom-indicator {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(255,255,255,.1);
-      border-radius: 6px;
-      font-size: 11px;
-      color: #aaa;
-      padding: 3px 8px;
-      pointer-events: none;
-      display: none;
-    }
-
-    /* ── PREVIEW STRIP (below the image) ── */
-    .preview-strip {
-      flex-shrink: 0;
-      background: rgba(0,0,0,.55);
-      border-top: 1px solid rgba(255,255,255,.07);
-      padding: 12px 16px 16px;
-    }
-
-    .preview-strip-label {
-      font-size: 10px;
-      color: #555;
-      text-transform: uppercase;
-      letter-spacing: .6px;
-      margin-bottom: 10px;
-    }
-
-    .preview-row {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: thin;
-      scrollbar-color: #333 transparent;
-      padding-bottom: 4px;
-    }
-    .preview-row::-webkit-scrollbar { height: 3px; }
-    .preview-row::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
-
-    .preview-card {
-      flex: 0 0 130px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      scroll-snap-align: start;
-      opacity: .5;
-      transition: opacity .2s, transform .2s;
-    }
-    .preview-card:hover { opacity: .85; transform: translateY(-2px); }
-    .preview-card.active { opacity: 1; }
-
-    .preview-card img {
-      width: 130px;
-      height: 86px;
-      object-fit: cover;
-      border-radius: 7px;
-      display: block;
-      border: 2px solid transparent;
-      transition: border-color .15s;
-    }
-    .preview-card.active img { border-color: #fff; }
-
-    .preview-card-name {
-      font-size: 10px;
-      color: #aaa;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      text-align: center;
-    }
-    .preview-card.active .preview-card-name { color: #fff; }
   </style>
 </head>
 <body>
 
 <div class="toolbar">
-  <input id="search" placeholder="🔍  Search..." oninput="filterGallery()">
+  <input id="search" placeholder="🔍  Search..." oninput="renderGallery()">
   <span id="count">Loading...</span>
   <select class="sort-select" id="sortSel" onchange="renderGallery()">
     <option value="default">Sort: Default</option>
@@ -370,95 +286,73 @@
     <option value="fav">Favorites first</option>
   </select>
   <div class="view-btns">
-    <button class="view-btn active" onclick="setView('grid-small')" title="Small grid">⊞</button>
-    <button class="view-btn" onclick="setView('grid-medium')" title="Large grid">⊟</button>
-    <button class="view-btn" onclick="setView('grid-large')" title="List">☰</button>
+    <button class="view-btn active" onclick="setView('grid-small')">⊞</button>
+    <button class="view-btn"        onclick="setView('grid-medium')">⊟</button>
+    <button class="view-btn"        onclick="setView('grid-large')">☰</button>
   </div>
-  <button class="view-btn" id="selModeBtn" onclick="toggleSelectMode()" title="Select">✓</button>
 </div>
 
-<div class="select-bar" id="selectBar">
-  <span id="selCount">0 selected</span>
-  <button class="sel-btn" onclick="selectAll()">Select all</button>
-  <button class="sel-btn" onclick="clearSelection()">Clear</button>
-  <button class="sel-btn" onclick="toggleFavSelected()">♥ Favorite</button>
+<!-- INLINE VIEWER -->
+<div class="viewer" id="viewer">
+  <div class="viewer-header">
+    <div class="viewer-title" id="viewerTitle">Image</div>
+    <div class="viewer-actions">
+      <button class="vbtn" id="favBtn"  onclick="toggleFav()"       title="Favorite (F)">♡</button>
+      <button class="vbtn" id="zoomBtn" onclick="toggleZoom()"      title="Zoom (Z)">🔍</button>
+      <button class="vbtn" id="ssBtn"   onclick="toggleSlideshow()" title="Slideshow">▶</button>
+      <button class="vbtn"              onclick="downloadCurrent()"  title="Download">⬇</button>
+      <button class="vbtn close-btn"    onclick="closeViewer()"      title="Close (Esc)">✕</button>
+    </div>
+  </div>
+
+  <div class="viewer-img-area" id="viewerImgArea">
+    <button class="nav-btn left"  onclick="prevImage()">‹</button>
+    <img id="mainImg" onclick="toggleZoom()" alt="">
+    <button class="nav-btn right" onclick="nextImage()">›</button>
+    <div class="viewer-counter" id="viewerCounter">1 / 0</div>
+  </div>
+
+  <div class="preview-strip">
+    <div class="preview-strip-label" id="stripLabel">Up next</div>
+    <div class="preview-row" id="previewRow"></div>
+  </div>
 </div>
 
 <div class="gallery grid-small" id="gallery"></div>
 <div class="empty" id="emptyMsg">No images match your search.</div>
 
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox">
-
-  <div class="lb-header">
-    <div class="lb-title" id="lbTitle">Image</div>
-    <div class="lb-actions">
-      <button class="lb-btn" id="zoomBtn" onclick="toggleZoom()" title="Zoom (Z)">🔍</button>
-      <button class="lb-btn" id="favBtn" onclick="toggleFav()" title="Favorite (F)">♡</button>
-      <button class="lb-btn" id="ssBtn" onclick="toggleSlideshow()" title="Slideshow (Space)">▶</button>
-      <button class="lb-btn" onclick="downloadCurrent()" title="Download">⬇</button>
-      <button class="lb-btn" onclick="closeLightbox()" title="Close (Esc)">✕</button>
-    </div>
-  </div>
-
-  <div class="lb-main" id="lbMain">
-    <div class="slide-counter" id="slideCounter">1 / 0</div>
-    <div class="zoom-indicator" id="zoomIndicator">2× — click to exit</div>
-    <button class="nav-btn left" onclick="prevImage()">‹</button>
-    <div class="lb-img-wrap">
-      <img id="lbImg" onclick="toggleZoom()" alt="">
-    </div>
-    <button class="nav-btn right" onclick="nextImage()">›</button>
-  </div>
-
-  <!-- PREVIEW STRIP -->
-  <div class="preview-strip">
-    <div class="preview-strip-label" id="previewLabel">Up next</div>
-    <div class="preview-row" id="previewRow"></div>
-  </div>
-
-</div>
-
 <script>
-let images = [];      // full list with {url, name, fav}
-let filtered = [];    // currently visible
+let images = [];
+let filtered = [];
 let currentIndex = 0;
 let zoomed = false;
 let slideshowTimer = null;
-let selectMode = false;
-let selected = new Set();
 
+const viewer      = document.getElementById('viewer');
+const mainImg     = document.getElementById('mainImg');
+const previewRow  = document.getElementById('previewRow');
+const viewerTitle = document.getElementById('viewerTitle');
+const viewerCounter = document.getElementById('viewerCounter');
 const gallery     = document.getElementById('gallery');
-const lightbox    = document.getElementById('lightbox');
-const lbImg       = document.getElementById('lbImg');
-const lbTitle     = document.getElementById('lbTitle');
-const slideCounter= document.getElementById('slideCounter');
-const selBar      = document.getElementById('selectBar');
 
-// ── Load images ──────────────────────────────────────────────────────────────
 fetch("./image_cache.json")
-  .then(res => res.json())
+  .then(r => r.json())
   .then(data => {
-    // data can be an array of URLs (strings) or objects {url, name}
     images = data.map((item, i) => {
-      if (typeof item === 'string') return { url: item, name: 'Image ' + (i + 1), fav: false };
-      return { url: item.url || item, name: item.name || 'Image ' + (i + 1), fav: false };
+      if (typeof item === 'string') return { url: item, name: 'Image ' + (i+1), fav: false };
+      return { url: item.url || item, name: item.name || 'Image ' + (i+1), fav: false };
     });
     renderGallery();
   })
-  .catch(() => {
-    document.getElementById('count').textContent = 'Could not load image_cache.json';
-  });
+  .catch(() => { document.getElementById('count').textContent = 'Could not load image_cache.json'; });
 
-// ── Gallery rendering ─────────────────────────────────────────────────────────
 function renderGallery() {
   const q = document.getElementById('search').value.toLowerCase();
   filtered = images.filter(img => img.name.toLowerCase().includes(q));
-
   const sort = document.getElementById('sortSel').value;
-  if (sort === 'name-az') filtered.sort((a, b) => a.name.localeCompare(b.name));
-  else if (sort === 'name-za') filtered.sort((a, b) => b.name.localeCompare(a.name));
-  else if (sort === 'fav') filtered.sort((a, b) => b.fav - a.fav);
+  if (sort === 'name-az') filtered.sort((a,b) => a.name.localeCompare(b.name));
+  else if (sort === 'name-za') filtered.sort((a,b) => b.name.localeCompare(a.name));
+  else if (sort === 'fav') filtered.sort((a,b) => b.fav - a.fav);
 
   document.getElementById('count').textContent = filtered.length + ' images';
   document.getElementById('emptyMsg').style.display = filtered.length ? 'none' : 'block';
@@ -466,87 +360,61 @@ function renderGallery() {
   gallery.innerHTML = '';
   filtered.forEach((img, i) => {
     const card = document.createElement('div');
-    card.className = 'card' + (selectMode ? ' select-mode' : '');
-
+    card.className = 'card';
     card.innerHTML = `
       <img src="${img.url}" loading="lazy" alt="${img.name}" draggable="false">
       <div class="card-overlay">
         <div class="card-name">${img.name}</div>
-        <div class="card-idx">#${i + 1}</div>
+        <div class="card-idx">#${i+1}</div>
       </div>
-      <button class="fav-btn${img.fav ? ' active' : ''}" title="Favorite">${img.fav ? '♥' : '♡'}</button>
-      <div class="select-check${selected.has(i) ? ' checked' : ''}">${selected.has(i) ? '✓' : ''}</div>
+      <button class="fav-btn${img.fav?' active':''}" title="Favorite">${img.fav?'♥':'♡'}</button>
     `;
-
-    card.querySelector('img').onclick = () => openLightbox(i);
+    card.querySelector('img').onclick = () => openViewer(i);
     card.querySelector('.fav-btn').onclick = e => { e.stopPropagation(); toggleFavId(i); };
-    card.querySelector('.select-check').onclick = e => { e.stopPropagation(); toggleSelect(i); };
-
     gallery.appendChild(card);
   });
-}
 
-function filterGallery() { renderGallery(); }
+  // refresh previews if viewer is open
+  if (viewer.classList.contains('open')) buildPreviews();
+}
 
 function setView(cls) {
   gallery.className = 'gallery ' + cls;
-  document.querySelectorAll('.view-btn').forEach((b, i) => {
-    b.classList.toggle('active', ['grid-small', 'grid-medium', 'grid-large'][i] === cls);
+  document.querySelectorAll('.view-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['grid-small','grid-medium','grid-large'][i] === cls);
   });
 }
 
-// ── Selection ─────────────────────────────────────────────────────────────────
-function toggleSelectMode() {
-  selectMode = !selectMode;
-  document.getElementById('selModeBtn').classList.toggle('active', selectMode);
-  if (!selectMode) { selected.clear(); updateSelBar(); }
-  renderGallery();
-}
-function toggleSelect(i) {
-  if (selected.has(i)) selected.delete(i); else selected.add(i);
-  updateSelBar(); renderGallery();
-}
-function selectAll()     { filtered.forEach((_, i) => selected.add(i)); updateSelBar(); renderGallery(); }
-function clearSelection(){ selected.clear(); updateSelBar(); renderGallery(); }
-function updateSelBar()  {
-  selBar.classList.toggle('visible', selectMode && selected.size > 0);
-  document.getElementById('selCount').textContent = selected.size + ' selected';
-}
-function toggleFavSelected() {
-  selected.forEach(i => { filtered[i].fav = true; });
-  renderGallery();
+function openViewer(index) {
+  currentIndex = index;
+  viewer.classList.add('open');
+  viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  renderViewer();
 }
 
-// ── Lightbox ──────────────────────────────────────────────────────────────────
-function openLightbox(index) {
-  currentIndex = index;
-  lightbox.style.display = 'flex';
-  renderLightbox();
-  buildPreviews();
-}
-function closeLightbox() {
-  lightbox.style.display = 'none';
+function closeViewer() {
+  viewer.classList.remove('open');
   stopSlideshow();
   if (zoomed) toggleZoom();
 }
 
-function renderLightbox() {
+function renderViewer() {
   const img = filtered[currentIndex];
-  lbImg.src = img.url;
-  lbImg.alt = img.name;
-  lbTitle.textContent = img.name;
-  slideCounter.textContent = (currentIndex + 1) + ' / ' + filtered.length;
+  mainImg.src = img.url;
+  mainImg.alt = img.name;
+  viewerTitle.textContent = img.name + '  ·  ' + (currentIndex+1) + ' of ' + filtered.length;
+  viewerCounter.textContent = (currentIndex+1) + ' / ' + filtered.length;
   document.getElementById('favBtn').textContent = img.fav ? '♥' : '♡';
   document.getElementById('favBtn').classList.toggle('active', img.fav);
   buildPreviews();
 }
 
 function buildPreviews() {
-  const row = document.getElementById('previewRow');
-  const label = document.getElementById('previewLabel');
-  row.innerHTML = '';
+  previewRow.innerHTML = '';
+  const remaining = filtered.length - currentIndex - 1;
+  document.getElementById('stripLabel').textContent =
+    remaining > 0 ? `Up next  ·  ${remaining} more` : 'All images  ·  end of gallery';
 
-  // Show all images; scroll active one into view
   filtered.forEach((img, i) => {
     const card = document.createElement('div');
     card.className = 'preview-card' + (i === currentIndex ? ' active' : '');
@@ -554,35 +422,37 @@ function buildPreviews() {
       <img src="${img.url}" loading="lazy" alt="${img.name}">
       <div class="preview-card-name">${img.name}</div>
     `;
-    card.onclick = () => { currentIndex = i; renderLightbox(); };
-    row.appendChild(card);
+    card.onclick = () => { currentIndex = i; renderViewer(); };
+    previewRow.appendChild(card);
   });
 
-  // Label: "Up next" or "All images" when on last
-  const remaining = filtered.length - currentIndex - 1;
-  label.textContent = remaining > 0 ? `Up next  ·  ${remaining} more` : 'All images';
-
-  // Scroll so the active card is visible (with one card of lookahead)
-  const cards = row.querySelectorAll('.preview-card');
+  // scroll active preview into view
+  const cards = previewRow.querySelectorAll('.preview-card');
   if (cards[currentIndex]) {
     cards[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }
 }
 
-function nextImage() { if (zoomed) toggleZoom(); currentIndex = (currentIndex + 1) % filtered.length; renderLightbox(); }
-function prevImage() { if (zoomed) toggleZoom(); currentIndex = (currentIndex - 1 + filtered.length) % filtered.length; renderLightbox(); }
+function nextImage() {
+  if (zoomed) toggleZoom();
+  currentIndex = (currentIndex + 1) % filtered.length;
+  renderViewer();
+}
+function prevImage() {
+  if (zoomed) toggleZoom();
+  currentIndex = (currentIndex - 1 + filtered.length) % filtered.length;
+  renderViewer();
+}
 
 function toggleZoom() {
   zoomed = !zoomed;
-  lbImg.classList.toggle('zoomed', zoomed);
+  mainImg.classList.toggle('zoomed', zoomed);
   document.getElementById('zoomBtn').classList.toggle('active', zoomed);
-  document.getElementById('zoomIndicator').style.display = zoomed ? 'block' : 'none';
 }
 
 function toggleFav() {
-  const img = filtered[currentIndex];
-  img.fav = !img.fav;
-  renderLightbox();
+  filtered[currentIndex].fav = !filtered[currentIndex].fav;
+  renderViewer();
   renderGallery();
 }
 function toggleFavId(i) {
@@ -591,9 +461,8 @@ function toggleFavId(i) {
 }
 
 function toggleSlideshow() {
-  if (slideshowTimer) {
-    stopSlideshow();
-  } else {
+  if (slideshowTimer) { stopSlideshow(); }
+  else {
     document.getElementById('ssBtn').classList.add('active');
     document.getElementById('ssBtn').textContent = '⏸';
     slideshowTimer = setInterval(() => nextImage(), 2500);
@@ -612,24 +481,21 @@ function downloadCurrent() {
   a.click();
 }
 
-// ── Keyboard ──────────────────────────────────────────────────────────────────
+// Keyboard
 document.addEventListener('keydown', e => {
-  if (lightbox.style.display !== 'flex') return;
+  if (!viewer.classList.contains('open')) return;
   if (e.key === 'ArrowRight') nextImage();
   if (e.key === 'ArrowLeft')  prevImage();
-  if (e.key === 'Escape')     closeLightbox();
+  if (e.key === 'Escape')     closeViewer();
   if (e.key === ' ')          { e.preventDefault(); toggleSlideshow(); }
   if (e.key === 'f' || e.key === 'F') toggleFav();
   if (e.key === 'z' || e.key === 'Z') toggleZoom();
 });
 
-// Click backdrop to close
-lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
-
-// Swipe support (mobile)
+// Swipe
 let touchStartX = 0;
-document.getElementById('lbMain').addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
-document.getElementById('lbMain').addEventListener('touchend', e => {
+document.getElementById('viewerImgArea').addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
+document.getElementById('viewerImgArea').addEventListener('touchend', e => {
   const dx = e.changedTouches[0].clientX - touchStartX;
   if (Math.abs(dx) > 50) { dx < 0 ? nextImage() : prevImage(); }
 });
@@ -637,3 +503,4 @@ document.getElementById('lbMain').addEventListener('touchend', e => {
 
 </body>
 </html>
+
