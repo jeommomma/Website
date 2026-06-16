@@ -2,221 +2,658 @@
 <html>
 <head>
   <title>Gallery</title>
-
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       background: #111;
-      margin: 0;
-      padding: 20px;
-      font-family: Arial;
       color: white;
+      font-family: Arial;
+      padding: 20px;
     }
 
-    h2 {
-      color: #aaa;
+    /* TOOLBAR */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    #search {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      padding: 7px 12px;
+      width: 200px;
+      outline: none;
+    }
+    #search:focus { border-color: #555; }
+
+    #count { color: #888; font-size: 13px; flex: 1; }
+
+    .sort-select {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      padding: 6px 10px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .view-btns { display: flex; gap: 4px; }
+    .view-btn {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #999;
+      cursor: pointer;
       font-size: 16px;
-      font-weight: normal;
+      padding: 6px 10px;
+      transition: .15s;
     }
+    .view-btn.active { background: #2e2e2e; border-color: #555; color: #fff; }
+    .view-btn:hover { background: #2a2a2a; }
 
+    /* SELECT BAR */
+    .select-bar {
+      background: #1a2a3a;
+      border: 1px solid #2a4a6a;
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+    .select-bar.visible { display: flex; }
+    .sel-btn {
+      background: #2a4a7a;
+      border: 1px solid #4a7aba;
+      border-radius: 6px;
+      color: #7ab4f4;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 5px 10px;
+      transition: .15s;
+    }
+    .sel-btn:hover { background: #3a5a9a; }
+
+    /* GALLERY */
     .gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 10px;
     }
+    .gallery.grid-small { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    .gallery.grid-medium { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+    .gallery.grid-large { grid-template-columns: 1fr; }
 
-    .gallery img {
-      width: 100%;
-      border-radius: 8px;
+    .card {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
       cursor: pointer;
-      user-select: none;
-      transition: 0.2s;
+      background: #1a1a1a;
     }
+    .card img {
+      width: 100%;
+      display: block;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      transition: .25s;
+      user-select: none;
+      draggable: false;
+    }
+    .card:hover img { transform: scale(1.04); }
 
-    .gallery img:hover {
-      transform: scale(1.02);
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.7) 0%, transparent 60%);
+      opacity: 0;
+      transition: .2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 10px;
+    }
+    .card:hover .card-overlay { opacity: 1; }
+    .card-name { font-size: 12px; color: #eee; font-weight: 500; }
+    .card-idx { font-size: 10px; color: #aaa; }
+
+    .fav-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,.5);
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: 15px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: .15s;
+      color: #fff;
+    }
+    .card:hover .fav-btn,
+    .fav-btn.active { display: flex; }
+    .fav-btn.active { background: rgba(220,60,60,.8); }
+
+    .select-check {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 22px;
+      height: 22px;
+      border: 2px solid rgba(255,255,255,.6);
+      border-radius: 6px;
+      background: rgba(0,0,0,.3);
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      transition: .15s;
+    }
+    .card:hover .select-check,
+    .select-mode .select-check { display: flex; }
+    .select-check.checked { background: #4a90e2; border-color: #4a90e2; }
+
+    /* EMPTY */
+    .empty {
+      color: #555;
+      font-size: 14px;
+      text-align: center;
+      padding: 60px 20px;
+      display: none;
     }
 
     /* ===== LIGHTBOX ===== */
     .lightbox {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.95);
+      inset: 0;
+      background: rgba(0,0,0,.97);
       display: none;
-      align-items: center;
-      justify-content: center;
       flex-direction: column;
       z-index: 9999;
-    }
-
-    .lightbox img.main {
-      max-width: 90%;
-      max-height: 70%;
-      border-radius: 10px;
-    }
-
-    /* controls */
-    .controls {
-      position: absolute;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    .btn {
-      font-size: 40px;
-      color: white;
-      cursor: pointer;
       user-select: none;
     }
 
-    .close {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      font-size: 30px;
+    .lb-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: rgba(0,0,0,.5);
+      flex-shrink: 0;
+    }
+    .lb-title { font-size: 13px; color: #ccc; font-weight: 500; }
+    .lb-actions { display: flex; gap: 8px; align-items: center; }
+    .lb-btn {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 8px;
+      color: #fff;
       cursor: pointer;
+      font-size: 18px;
+      padding: 6px 10px;
+      transition: .15s;
+      line-height: 1;
+    }
+    .lb-btn:hover { background: rgba(255,255,255,.2); }
+    .lb-btn.active { background: rgba(220,60,60,.6); border-color: rgba(220,60,60,.8); }
+
+    .lb-main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
     }
 
-    /* ===== THUMBNAILS ===== */
-    .thumbs {
+    .lb-img-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+    .lb-img-wrap img {
+      max-width: 90%;
+      max-height: 100%;
+      border-radius: 8px;
+      transition: .25s;
+      object-fit: contain;
+      cursor: zoom-in;
+    }
+    .lb-img-wrap img.zoomed {
+      max-width: none;
+      max-height: none;
+      width: 200%;
+      cursor: zoom-out;
+    }
+
+    .nav-btn {
       position: absolute;
-      bottom: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,.5);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
+      font-size: 22px;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: .15s;
+      z-index: 2;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,.2); }
+    .nav-btn.left { left: 16px; }
+    .nav-btn.right { right: 16px; }
+
+    .slide-counter {
+      position: absolute;
+      top: 14px;
       left: 50%;
       transform: translateX(-50%);
+      background: rgba(0,0,0,.55);
+      border-radius: 20px;
+      font-size: 12px;
+      color: #bbb;
+      padding: 4px 12px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .zoom-indicator {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: rgba(255,255,255,.1);
+      border-radius: 6px;
+      font-size: 11px;
+      color: #aaa;
+      padding: 4px 8px;
+      pointer-events: none;
+      display: none;
+    }
+
+    /* THUMBNAIL STRIP */
+    .strip {
+      flex-shrink: 0;
+      background: rgba(0,0,0,.6);
+      padding: 10px 16px 14px;
+    }
+    .strip-label {
+      font-size: 10px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 8px;
+    }
+    .strip-inner {
       display: flex;
       gap: 8px;
-      max-width: 90%;
       overflow-x: auto;
-      padding: 10px;
-      background: rgba(0,0,0,0.3);
-      border-radius: 10px;
-      z-index: 10000;
+      scrollbar-width: thin;
+      scrollbar-color: #444 transparent;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 4px;
     }
+    .strip-inner::-webkit-scrollbar { height: 3px; }
+    .strip-inner::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
 
-    .thumbs img {
-      flex: 0 0 auto;
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
+    .thumb {
+      position: relative;
+      flex: 0 0 64px;
+      height: 64px;
       border-radius: 6px;
+      overflow: visible;
       cursor: pointer;
-      opacity: 0.5;
-      transition: 0.2s;
+      opacity: .45;
+      transition: .2s;
+      border: 2px solid transparent;
+      scroll-snap-align: center;
     }
+    .thumb img.timg {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      display: block;
+      border-radius: 5px;
+    }
+    .thumb.active { opacity: 1; border-color: #fff; transform: scale(1.08); }
+    .thumb:hover { opacity: .8; }
 
-    .thumbs img.active {
-      opacity: 1;
-      border: 2px solid white;
-      transform: scale(1.1);
+    .thumb-preview {
+      position: absolute;
+      bottom: 76px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      pointer-events: none;
+      z-index: 100;
+    }
+    .thumb-preview img {
+      width: 120px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,.3);
+    }
+    .thumb-preview span {
+      font-size: 10px;
+      color: #ccc;
+      background: rgba(0,0,0,.75);
+      padding: 2px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+    .thumb:hover .thumb-preview { display: flex; }
+
+    /* KEYBOARD HINT */
+    .kb-hint {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: #444;
+      white-space: nowrap;
+      pointer-events: none;
     }
   </style>
 </head>
-
 <body>
 
-<h2 id="count">Loading...</h2>
+<div class="toolbar">
+  <input id="search" placeholder="🔍  Search..." oninput="filterGallery()">
+  <span id="count">Loading...</span>
+  <select class="sort-select" id="sortSel" onchange="renderGallery()">
+    <option value="default">Sort: Default</option>
+    <option value="name-az">Name A→Z</option>
+    <option value="name-za">Name Z→A</option>
+    <option value="fav">Favorites first</option>
+  </select>
+  <div class="view-btns">
+    <button class="view-btn active" onclick="setView('grid-small')" title="Small grid">⊞</button>
+    <button class="view-btn" onclick="setView('grid-medium')" title="Large grid">⊟</button>
+    <button class="view-btn" onclick="setView('grid-large')" title="List">☰</button>
+  </div>
+  <button class="view-btn" id="selModeBtn" onclick="toggleSelectMode()" title="Select">✓</button>
+</div>
 
-<div class="gallery" id="gallery"></div>
+<div class="select-bar" id="selectBar">
+  <span id="selCount">0 selected</span>
+  <button class="sel-btn" onclick="selectAll()">Select all</button>
+  <button class="sel-btn" onclick="clearSelection()">Clear</button>
+  <button class="sel-btn" onclick="toggleFavSelected()">♥ Favorite</button>
+</div>
+
+<div class="gallery grid-small" id="gallery"></div>
+<div class="empty" id="emptyMsg">No images match your search.</div>
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox">
 
-  <span class="close" onclick="closeLightbox()">✕</span>
-
-  <div class="controls">
-    <span class="btn" onclick="prevImage()">❮</span>
-    <span class="btn" onclick="nextImage()">❯</span>
+  <div class="lb-header">
+    <div class="lb-title" id="lbTitle">Image</div>
+    <div class="lb-actions">
+      <button class="lb-btn" id="zoomBtn" onclick="toggleZoom()" title="Zoom (Z)">🔍</button>
+      <button class="lb-btn" id="favBtn" onclick="toggleFav()" title="Favorite (F)">♡</button>
+      <button class="lb-btn" id="ssBtn" onclick="toggleSlideshow()" title="Slideshow (Space)">▶</button>
+      <button class="lb-btn" onclick="downloadCurrent()" title="Download">⬇</button>
+      <button class="lb-btn" onclick="closeLightbox()" title="Close (Esc)">✕</button>
+    </div>
   </div>
 
-  <img id="lightbox-img" class="main">
+  <div class="lb-main" id="lbMain">
+    <div class="slide-counter" id="slideCounter">1 / 0</div>
+    <div class="zoom-indicator" id="zoomIndicator">2× zoom — click to exit</div>
+    <button class="nav-btn left" onclick="prevImage()">‹</button>
+    <div class="lb-img-wrap">
+      <img id="lbImg" onclick="toggleZoom()" alt="">
+    </div>
+    <button class="nav-btn right" onclick="nextImage()">›</button>
+    <div class="kb-hint">← → navigate &nbsp;·&nbsp; Space slideshow &nbsp;·&nbsp; F favorite &nbsp;·&nbsp; Z zoom &nbsp;·&nbsp; Esc close</div>
+  </div>
 
-  <div class="thumbs" id="thumbs"></div>
+  <div class="strip">
+    <div class="strip-label">All images</div>
+    <div class="strip-inner" id="stripInner"></div>
+  </div>
 
 </div>
 
 <script>
-let images = [];
+let images = [];      // full list with {url, name, fav}
+let filtered = [];    // currently visible
 let currentIndex = 0;
+let zoomed = false;
+let slideshowTimer = null;
+let selectMode = false;
+let selected = new Set();
 
-const gallery = document.getElementById("gallery");
-const lightbox = document.getElementById("lightbox");
-const lightboxImg = document.getElementById("lightbox-img");
-const thumbs = document.getElementById("thumbs");
+const gallery     = document.getElementById('gallery');
+const lightbox    = document.getElementById('lightbox');
+const lbImg       = document.getElementById('lbImg');
+const stripInner  = document.getElementById('stripInner');
+const lbTitle     = document.getElementById('lbTitle');
+const slideCounter= document.getElementById('slideCounter');
+const selBar      = document.getElementById('selectBar');
 
+// ── Load images ──────────────────────────────────────────────────────────────
 fetch("./image_cache.json")
   .then(res => res.json())
   .then(data => {
-    images = data;
-
-    document.getElementById("count").innerText = images.length + " images";
-
-    // MAIN GALLERY
-    images.forEach((url, index) => {
-      const img = document.createElement("img");
-      img.src = url;
-      img.loading = "lazy";
-      img.draggable = false;
-
-      img.onclick = () => openLightbox(index);
-
-      gallery.appendChild(img);
+    // data can be an array of URLs (strings) or objects {url, name}
+    images = data.map((item, i) => {
+      if (typeof item === 'string') return { url: item, name: 'Image ' + (i + 1), fav: false };
+      return { url: item.url || item, name: item.name || 'Image ' + (i + 1), fav: false };
     });
+    renderGallery();
+  })
+  .catch(() => {
+    document.getElementById('count').textContent = 'Could not load image_cache.json';
   });
 
-function openLightbox(index) {
-  currentIndex = index;
-  lightbox.style.display = "flex";
-  renderLightbox();
+// ── Gallery rendering ─────────────────────────────────────────────────────────
+function renderGallery() {
+  const q = document.getElementById('search').value.toLowerCase();
+  filtered = images.filter(img => img.name.toLowerCase().includes(q));
+
+  const sort = document.getElementById('sortSel').value;
+  if (sort === 'name-az') filtered.sort((a, b) => a.name.localeCompare(b.name));
+  else if (sort === 'name-za') filtered.sort((a, b) => b.name.localeCompare(a.name));
+  else if (sort === 'fav') filtered.sort((a, b) => b.fav - a.fav);
+
+  document.getElementById('count').textContent = filtered.length + ' images';
+  document.getElementById('emptyMsg').style.display = filtered.length ? 'none' : 'block';
+
+  gallery.innerHTML = '';
+  filtered.forEach((img, i) => {
+    const card = document.createElement('div');
+    card.className = 'card' + (selectMode ? ' select-mode' : '');
+
+    card.innerHTML = `
+      <img src="${img.url}" loading="lazy" alt="${img.name}" draggable="false">
+      <div class="card-overlay">
+        <div class="card-name">${img.name}</div>
+        <div class="card-idx">#${i + 1}</div>
+      </div>
+      <button class="fav-btn${img.fav ? ' active' : ''}" title="Favorite">${img.fav ? '♥' : '♡'}</button>
+      <div class="select-check${selected.has(i) ? ' checked' : ''}">${selected.has(i) ? '✓' : ''}</div>
+    `;
+
+    card.querySelector('img').onclick = () => openLightbox(i);
+    card.querySelector('.fav-btn').onclick = e => { e.stopPropagation(); toggleFavId(i); };
+    card.querySelector('.select-check').onclick = e => { e.stopPropagation(); toggleSelect(i); };
+
+    gallery.appendChild(card);
+  });
 }
 
+function filterGallery() { renderGallery(); }
+
+function setView(cls) {
+  gallery.className = 'gallery ' + cls;
+  document.querySelectorAll('.view-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['grid-small', 'grid-medium', 'grid-large'][i] === cls);
+  });
+}
+
+// ── Selection ─────────────────────────────────────────────────────────────────
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  document.getElementById('selModeBtn').classList.toggle('active', selectMode);
+  if (!selectMode) { selected.clear(); updateSelBar(); }
+  renderGallery();
+}
+function toggleSelect(i) {
+  if (selected.has(i)) selected.delete(i); else selected.add(i);
+  updateSelBar(); renderGallery();
+}
+function selectAll()     { filtered.forEach((_, i) => selected.add(i)); updateSelBar(); renderGallery(); }
+function clearSelection(){ selected.clear(); updateSelBar(); renderGallery(); }
+function updateSelBar()  {
+  selBar.classList.toggle('visible', selectMode && selected.size > 0);
+  document.getElementById('selCount').textContent = selected.size + ' selected';
+}
+function toggleFavSelected() {
+  selected.forEach(i => { filtered[i].fav = true; });
+  renderGallery();
+}
+
+// ── Lightbox ──────────────────────────────────────────────────────────────────
+function openLightbox(index) {
+  currentIndex = index;
+  lightbox.style.display = 'flex';
+  renderLightbox();
+  buildStrip();
+}
 function closeLightbox() {
-  lightbox.style.display = "none";
+  lightbox.style.display = 'none';
+  stopSlideshow();
+  if (zoomed) toggleZoom();
 }
 
 function renderLightbox() {
-  lightboxImg.src = images[currentIndex];
+  const img = filtered[currentIndex];
+  lbImg.src = img.url;
+  lbImg.alt = img.name;
+  lbTitle.textContent = img.name;
+  slideCounter.textContent = (currentIndex + 1) + ' / ' + filtered.length;
+  document.getElementById('favBtn').textContent = img.fav ? '♥' : '♡';
+  document.getElementById('favBtn').classList.toggle('active', img.fav);
+  updateActiveThumb();
+}
 
-  // build thumbnails
-  thumbs.innerHTML = "";
-
-  images.forEach((url, i) => {
-    const t = document.createElement("img");
-    t.src = url;
-
-    if (i === currentIndex) t.classList.add("active");
-
-    t.onclick = () => {
-      currentIndex = i;
-      renderLightbox();
-    };
-
-    thumbs.appendChild(t);
+function buildStrip() {
+  stripInner.innerHTML = '';
+  filtered.forEach((img, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'thumb' + (i === currentIndex ? ' active' : '');
+    wrap.innerHTML = `
+      <img class="timg" src="${img.url}" loading="lazy" alt="${img.name}">
+      <div class="thumb-preview">
+        <img src="${img.url}" alt="">
+        <span>${img.name}</span>
+      </div>
+    `;
+    wrap.onclick = () => { currentIndex = i; renderLightbox(); };
+    stripInner.appendChild(wrap);
   });
 }
 
-function nextImage() {
-  currentIndex = (currentIndex + 1) % images.length;
-  renderLightbox();
-}
-
-function prevImage() {
-  currentIndex = (currentIndex - 1 + images.length) % images.length;
-  renderLightbox();
-}
-
-// keyboard support
-document.addEventListener("keydown", (e) => {
-  if (lightbox.style.display === "flex") {
-    if (e.key === "ArrowRight") nextImage();
-    if (e.key === "ArrowLeft") prevImage();
-    if (e.key === "Escape") closeLightbox();
+function updateActiveThumb() {
+  const thumbs = stripInner.querySelectorAll('.thumb');
+  thumbs.forEach((t, i) => t.classList.toggle('active', i === currentIndex));
+  if (thumbs[currentIndex]) {
+    thumbs[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }
+}
+
+function nextImage() { if (zoomed) toggleZoom(); currentIndex = (currentIndex + 1) % filtered.length; renderLightbox(); updateActiveThumb(); }
+function prevImage() { if (zoomed) toggleZoom(); currentIndex = (currentIndex - 1 + filtered.length) % filtered.length; renderLightbox(); updateActiveThumb(); }
+
+function toggleZoom() {
+  zoomed = !zoomed;
+  lbImg.classList.toggle('zoomed', zoomed);
+  document.getElementById('zoomBtn').classList.toggle('active', zoomed);
+  document.getElementById('zoomIndicator').style.display = zoomed ? 'block' : 'none';
+}
+
+function toggleFav() {
+  const img = filtered[currentIndex];
+  img.fav = !img.fav;
+  renderLightbox();
+  renderGallery();
+}
+function toggleFavId(i) {
+  filtered[i].fav = !filtered[i].fav;
+  renderGallery();
+}
+
+function toggleSlideshow() {
+  if (slideshowTimer) {
+    stopSlideshow();
+  } else {
+    document.getElementById('ssBtn').classList.add('active');
+    document.getElementById('ssBtn').textContent = '⏸';
+    slideshowTimer = setInterval(() => nextImage(), 2500);
+  }
+}
+function stopSlideshow() {
+  clearInterval(slideshowTimer); slideshowTimer = null;
+  document.getElementById('ssBtn').classList.remove('active');
+  document.getElementById('ssBtn').textContent = '▶';
+}
+
+function downloadCurrent() {
+  const a = document.createElement('a');
+  a.href = filtered[currentIndex].url;
+  a.download = filtered[currentIndex].name;
+  a.click();
+}
+
+// ── Keyboard ──────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (lightbox.style.display !== 'flex') return;
+  if (e.key === 'ArrowRight') nextImage();
+  if (e.key === 'ArrowLeft')  prevImage();
+  if (e.key === 'Escape')     closeLightbox();
+  if (e.key === ' ')          { e.preventDefault(); toggleSlideshow(); }
+  if (e.key === 'f' || e.key === 'F') toggleFav();
+  if (e.key === 'z' || e.key === 'Z') toggleZoom();
+});
+
+// Click backdrop to close
+lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+
+// Swipe support (mobile)
+let touchStartX = 0;
+document.getElementById('lbMain').addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
+document.getElementById('lbMain').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 50) { dx < 0 ? nextImage() : prevImage(); }
 });
 </script>
 
