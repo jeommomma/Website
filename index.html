@@ -28,8 +28,8 @@
       width: 100%;
       border-radius: 8px;
       cursor: pointer;
-      transition: 0.2s;
       user-select: none;
+      transition: 0.2s;
     }
 
     .gallery img:hover {
@@ -51,12 +51,13 @@
       z-index: 9999;
     }
 
-    .lightbox img {
+    .lightbox img.main {
       max-width: 90%;
-      max-height: 80%;
+      max-height: 70%;
       border-radius: 10px;
     }
 
+    /* controls */
     .controls {
       position: absolute;
       width: 100%;
@@ -72,7 +73,6 @@
       color: white;
       cursor: pointer;
       user-select: none;
-      padding: 10px;
     }
 
     .close {
@@ -81,6 +81,32 @@
       right: 30px;
       font-size: 30px;
       cursor: pointer;
+    }
+
+    /* ===== THUMBNAILS ===== */
+    .thumbs {
+      position: absolute;
+      bottom: 20px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      max-width: 90%;
+      padding: 10px;
+    }
+
+    .thumbs img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: 0.2s;
+    }
+
+    .thumbs img.active {
+      opacity: 1;
+      border: 2px solid white;
     }
   </style>
 </head>
@@ -93,6 +119,7 @@
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox">
+
   <span class="close" onclick="closeLightbox()">✕</span>
 
   <div class="controls">
@@ -100,7 +127,10 @@
     <span class="btn" onclick="nextImage()">❯</span>
   </div>
 
-  <img id="lightbox-img">
+  <img id="lightbox-img" class="main">
+
+  <div class="thumbs" id="thumbs"></div>
+
 </div>
 
 <script>
@@ -110,6 +140,7 @@ let currentIndex = 0;
 const gallery = document.getElementById("gallery");
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
+const thumbs = document.getElementById("thumbs");
 
 fetch("./image_cache.json")
   .then(res => res.json())
@@ -118,50 +149,58 @@ fetch("./image_cache.json")
 
     document.getElementById("count").innerText = images.length + " images";
 
+    // MAIN GALLERY
     images.forEach((url, index) => {
       const img = document.createElement("img");
       img.src = url;
-
       img.loading = "lazy";
       img.draggable = false;
-      img.style.cursor = "pointer";
 
-      img.onerror = () => img.style.display = "none";
-
-      img.addEventListener("click", () => {
-        openLightbox(index);
-      });
+      img.onclick = () => openLightbox(index);
 
       gallery.appendChild(img);
     });
-  })
-  .catch(err => {
-    document.getElementById("count").innerText = "Failed to load images";
-    console.error(err);
   });
 
 function openLightbox(index) {
   currentIndex = index;
   lightbox.style.display = "flex";
-  updateImage();
+  renderLightbox();
 }
 
 function closeLightbox() {
   lightbox.style.display = "none";
 }
 
-function updateImage() {
+function renderLightbox() {
   lightboxImg.src = images[currentIndex];
+
+  // build thumbnails
+  thumbs.innerHTML = "";
+
+  images.forEach((url, i) => {
+    const t = document.createElement("img");
+    t.src = url;
+
+    if (i === currentIndex) t.classList.add("active");
+
+    t.onclick = () => {
+      currentIndex = i;
+      renderLightbox();
+    };
+
+    thumbs.appendChild(t);
+  });
 }
 
 function nextImage() {
   currentIndex = (currentIndex + 1) % images.length;
-  updateImage();
+  renderLightbox();
 }
 
 function prevImage() {
   currentIndex = (currentIndex - 1 + images.length) % images.length;
-  updateImage();
+  renderLightbox();
 }
 
 // keyboard support
