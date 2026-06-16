@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Gallery</title>
+
   <style>
     body {
       background: #111;
@@ -23,37 +24,143 @@
       gap: 10px;
     }
 
-    img {
+    .gallery img {
       width: 100%;
       border-radius: 8px;
-      display: block;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .gallery img:hover {
+      transform: scale(1.02);
+    }
+
+    /* ===== LIGHTBOX ===== */
+    .lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .lightbox img {
+      max-width: 90%;
+      max-height: 80%;
+      border-radius: 10px;
+    }
+
+    .controls {
+      position: absolute;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .btn {
+      font-size: 40px;
+      color: white;
+      cursor: pointer;
+      user-select: none;
+      padding: 10px;
+    }
+
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 30px;
+      cursor: pointer;
     }
   </style>
 </head>
+
 <body>
 
 <h2 id="count">Loading...</h2>
 
 <div class="gallery" id="gallery"></div>
 
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <span class="close" onclick="closeLightbox()">✕</span>
+
+  <div class="controls">
+    <span class="btn" onclick="prevImage()">❮</span>
+    <span class="btn" onclick="nextImage()">❯</span>
+  </div>
+
+  <img id="lightbox-img">
+</div>
+
 <script>
+let images = [];
+let currentIndex = 0;
+
+const gallery = document.getElementById("gallery");
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightbox-img");
+
 fetch("image_cache.json")
   .then(res => res.json())
-  .then(images => {
+  .then(data => {
+    images = data;
+
     document.getElementById("count").innerText = images.length + " images";
 
-    const gallery = document.getElementById("gallery");
-
-    images.forEach(url => {
+    images.forEach((url, index) => {
       const img = document.createElement("img");
       img.src = url;
 
       img.loading = "lazy";
       img.onerror = () => img.style.display = "none";
 
+      img.onclick = () => openLightbox(index);
+
       gallery.appendChild(img);
     });
   });
+
+function openLightbox(index) {
+  currentIndex = index;
+  lightbox.style.display = "flex";
+  updateImage();
+}
+
+function closeLightbox() {
+  lightbox.style.display = "none";
+}
+
+function updateImage() {
+  lightboxImg.src = images[currentIndex];
+}
+
+function nextImage() {
+  currentIndex = (currentIndex + 1) % images.length;
+  updateImage();
+}
+
+function prevImage() {
+  currentIndex = (currentIndex - 1 + images.length) % images.length;
+  updateImage();
+}
+
+// keyboard support
+document.addEventListener("keydown", (e) => {
+  if (lightbox.style.display === "flex") {
+    if (e.key === "ArrowRight") nextImage();
+    if (e.key === "ArrowLeft") prevImage();
+    if (e.key === "Escape") closeLightbox();
+  }
+});
 </script>
 
 </body>
