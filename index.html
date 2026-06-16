@@ -186,14 +186,16 @@
       flex-direction: column;
       z-index: 9999;
       user-select: none;
+      overflow: hidden;
     }
 
+    /* Header */
     .lb-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 20px;
-      background: rgba(0,0,0,.5);
+      padding: 12px 20px;
+      background: rgba(0,0,0,.6);
       flex-shrink: 0;
     }
     .lb-title { font-size: 13px; color: #ccc; font-weight: 500; }
@@ -212,14 +214,15 @@
     .lb-btn:hover { background: rgba(255,255,255,.2); }
     .lb-btn.active { background: rgba(220,60,60,.6); border-color: rgba(220,60,60,.8); }
 
+    /* Main image area */
     .lb-main {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      overflow: hidden;
       min-height: 0;
+      padding: 16px 60px;
     }
 
     .lb-img-wrap {
@@ -230,12 +233,12 @@
       height: 100%;
     }
     .lb-img-wrap img {
-      max-width: 90%;
+      max-width: 100%;
       max-height: 100%;
-      border-radius: 8px;
-      transition: .25s;
+      border-radius: 10px;
       object-fit: contain;
       cursor: zoom-in;
+      transition: opacity .2s;
     }
     .lb-img-wrap img.zoomed {
       max-width: none;
@@ -248,138 +251,111 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(0,0,0,.5);
+      background: rgba(255,255,255,.08);
       border: 1px solid rgba(255,255,255,.15);
       border-radius: 50%;
       color: #fff;
       cursor: pointer;
       font-size: 22px;
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: .15s;
       z-index: 2;
     }
-    .nav-btn:hover { background: rgba(255,255,255,.2); }
-    .nav-btn.left { left: 16px; }
-    .nav-btn.right { right: 16px; }
+    .nav-btn:hover { background: rgba(255,255,255,.22); }
+    .nav-btn.left { left: 10px; }
+    .nav-btn.right { right: 10px; }
 
     .slide-counter {
       position: absolute;
-      top: 14px;
+      top: 10px;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(0,0,0,.55);
       border-radius: 20px;
       font-size: 12px;
       color: #bbb;
-      padding: 4px 12px;
-      white-space: nowrap;
+      padding: 3px 12px;
       pointer-events: none;
     }
 
     .zoom-indicator {
       position: absolute;
-      top: 14px;
-      right: 16px;
+      top: 10px;
+      right: 10px;
       background: rgba(255,255,255,.1);
       border-radius: 6px;
       font-size: 11px;
       color: #aaa;
-      padding: 4px 8px;
+      padding: 3px 8px;
       pointer-events: none;
       display: none;
     }
 
-    /* THUMBNAIL STRIP */
-    .strip {
+    /* ── PREVIEW STRIP (below the image) ── */
+    .preview-strip {
       flex-shrink: 0;
-      background: rgba(0,0,0,.6);
-      padding: 10px 16px 14px;
+      background: rgba(0,0,0,.55);
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding: 12px 16px 16px;
     }
-    .strip-label {
+
+    .preview-strip-label {
       font-size: 10px;
       color: #555;
       text-transform: uppercase;
-      letter-spacing: .5px;
-      margin-bottom: 8px;
+      letter-spacing: .6px;
+      margin-bottom: 10px;
     }
-    .strip-inner {
+
+    .preview-row {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       overflow-x: auto;
-      scrollbar-width: thin;
-      scrollbar-color: #444 transparent;
       scroll-snap-type: x mandatory;
+      scrollbar-width: thin;
+      scrollbar-color: #333 transparent;
       padding-bottom: 4px;
     }
-    .strip-inner::-webkit-scrollbar { height: 3px; }
-    .strip-inner::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+    .preview-row::-webkit-scrollbar { height: 3px; }
+    .preview-row::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
 
-    .thumb {
-      position: relative;
-      flex: 0 0 64px;
-      height: 64px;
-      border-radius: 6px;
-      overflow: visible;
-      cursor: pointer;
-      opacity: .45;
-      transition: .2s;
-      border: 2px solid transparent;
-      scroll-snap-align: center;
-    }
-    .thumb img.timg {
-      width: 64px;
-      height: 64px;
-      object-fit: cover;
-      display: block;
-      border-radius: 5px;
-    }
-    .thumb.active { opacity: 1; border-color: #fff; transform: scale(1.08); }
-    .thumb:hover { opacity: .8; }
-
-    .thumb-preview {
-      position: absolute;
-      bottom: 76px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: none;
+    .preview-card {
+      flex: 0 0 130px;
+      display: flex;
       flex-direction: column;
-      align-items: center;
       gap: 5px;
-      pointer-events: none;
-      z-index: 100;
+      cursor: pointer;
+      scroll-snap-align: start;
+      opacity: .5;
+      transition: opacity .2s, transform .2s;
     }
-    .thumb-preview img {
-      width: 120px;
-      height: 90px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 2px solid rgba(255,255,255,.3);
-    }
-    .thumb-preview span {
-      font-size: 10px;
-      color: #ccc;
-      background: rgba(0,0,0,.75);
-      padding: 2px 8px;
-      border-radius: 10px;
-      white-space: nowrap;
-    }
-    .thumb:hover .thumb-preview { display: flex; }
+    .preview-card:hover { opacity: .85; transform: translateY(-2px); }
+    .preview-card.active { opacity: 1; }
 
-    /* KEYBOARD HINT */
-    .kb-hint {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 10px;
-      color: #444;
-      white-space: nowrap;
-      pointer-events: none;
+    .preview-card img {
+      width: 130px;
+      height: 86px;
+      object-fit: cover;
+      border-radius: 7px;
+      display: block;
+      border: 2px solid transparent;
+      transition: border-color .15s;
     }
+    .preview-card.active img { border-color: #fff; }
+
+    .preview-card-name {
+      font-size: 10px;
+      color: #aaa;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+    .preview-card.active .preview-card-name { color: #fff; }
   </style>
 </head>
 <body>
@@ -427,18 +403,18 @@
 
   <div class="lb-main" id="lbMain">
     <div class="slide-counter" id="slideCounter">1 / 0</div>
-    <div class="zoom-indicator" id="zoomIndicator">2× zoom — click to exit</div>
+    <div class="zoom-indicator" id="zoomIndicator">2× — click to exit</div>
     <button class="nav-btn left" onclick="prevImage()">‹</button>
     <div class="lb-img-wrap">
       <img id="lbImg" onclick="toggleZoom()" alt="">
     </div>
     <button class="nav-btn right" onclick="nextImage()">›</button>
-    <div class="kb-hint">← → navigate &nbsp;·&nbsp; Space slideshow &nbsp;·&nbsp; F favorite &nbsp;·&nbsp; Z zoom &nbsp;·&nbsp; Esc close</div>
   </div>
 
-  <div class="strip">
-    <div class="strip-label">All images</div>
-    <div class="strip-inner" id="stripInner"></div>
+  <!-- PREVIEW STRIP -->
+  <div class="preview-strip">
+    <div class="preview-strip-label" id="previewLabel">Up next</div>
+    <div class="preview-row" id="previewRow"></div>
   </div>
 
 </div>
@@ -455,7 +431,6 @@ let selected = new Set();
 const gallery     = document.getElementById('gallery');
 const lightbox    = document.getElementById('lightbox');
 const lbImg       = document.getElementById('lbImg');
-const stripInner  = document.getElementById('stripInner');
 const lbTitle     = document.getElementById('lbTitle');
 const slideCounter= document.getElementById('slideCounter');
 const selBar      = document.getElementById('selectBar');
@@ -547,7 +522,7 @@ function openLightbox(index) {
   currentIndex = index;
   lightbox.style.display = 'flex';
   renderLightbox();
-  buildStrip();
+  buildPreviews();
 }
 function closeLightbox() {
   lightbox.style.display = 'none';
@@ -563,36 +538,39 @@ function renderLightbox() {
   slideCounter.textContent = (currentIndex + 1) + ' / ' + filtered.length;
   document.getElementById('favBtn').textContent = img.fav ? '♥' : '♡';
   document.getElementById('favBtn').classList.toggle('active', img.fav);
-  updateActiveThumb();
+  buildPreviews();
 }
 
-function buildStrip() {
-  stripInner.innerHTML = '';
+function buildPreviews() {
+  const row = document.getElementById('previewRow');
+  const label = document.getElementById('previewLabel');
+  row.innerHTML = '';
+
+  // Show all images; scroll active one into view
   filtered.forEach((img, i) => {
-    const wrap = document.createElement('div');
-    wrap.className = 'thumb' + (i === currentIndex ? ' active' : '');
-    wrap.innerHTML = `
-      <img class="timg" src="${img.url}" loading="lazy" alt="${img.name}">
-      <div class="thumb-preview">
-        <img src="${img.url}" alt="">
-        <span>${img.name}</span>
-      </div>
+    const card = document.createElement('div');
+    card.className = 'preview-card' + (i === currentIndex ? ' active' : '');
+    card.innerHTML = `
+      <img src="${img.url}" loading="lazy" alt="${img.name}">
+      <div class="preview-card-name">${img.name}</div>
     `;
-    wrap.onclick = () => { currentIndex = i; renderLightbox(); };
-    stripInner.appendChild(wrap);
+    card.onclick = () => { currentIndex = i; renderLightbox(); };
+    row.appendChild(card);
   });
-}
 
-function updateActiveThumb() {
-  const thumbs = stripInner.querySelectorAll('.thumb');
-  thumbs.forEach((t, i) => t.classList.toggle('active', i === currentIndex));
-  if (thumbs[currentIndex]) {
-    thumbs[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  // Label: "Up next" or "All images" when on last
+  const remaining = filtered.length - currentIndex - 1;
+  label.textContent = remaining > 0 ? `Up next  ·  ${remaining} more` : 'All images';
+
+  // Scroll so the active card is visible (with one card of lookahead)
+  const cards = row.querySelectorAll('.preview-card');
+  if (cards[currentIndex]) {
+    cards[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }
 }
 
-function nextImage() { if (zoomed) toggleZoom(); currentIndex = (currentIndex + 1) % filtered.length; renderLightbox(); updateActiveThumb(); }
-function prevImage() { if (zoomed) toggleZoom(); currentIndex = (currentIndex - 1 + filtered.length) % filtered.length; renderLightbox(); updateActiveThumb(); }
+function nextImage() { if (zoomed) toggleZoom(); currentIndex = (currentIndex + 1) % filtered.length; renderLightbox(); }
+function prevImage() { if (zoomed) toggleZoom(); currentIndex = (currentIndex - 1 + filtered.length) % filtered.length; renderLightbox(); }
 
 function toggleZoom() {
   zoomed = !zoomed;
