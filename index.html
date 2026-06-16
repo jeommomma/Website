@@ -29,6 +29,7 @@
       border-radius: 8px;
       cursor: pointer;
       transition: 0.2s;
+      user-select: none;
     }
 
     .gallery img:hover {
@@ -47,6 +48,7 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
+      z-index: 9999;
     }
 
     .lightbox img {
@@ -121,12 +123,21 @@ fetch("./image_cache.json")
       img.src = url;
 
       img.loading = "lazy";
+      img.draggable = false;
+      img.style.cursor = "pointer";
+
       img.onerror = () => img.style.display = "none";
 
-      img.onclick = () => openLightbox(index);
+      img.addEventListener("click", () => {
+        openLightbox(index);
+      });
 
       gallery.appendChild(img);
     });
+  })
+  .catch(err => {
+    document.getElementById("count").innerText = "Failed to load images";
+    console.error(err);
   });
 
 function openLightbox(index) {
