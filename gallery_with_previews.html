@@ -1,0 +1,173 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#111;color:#fff;font-family:Arial;padding:20px}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+#search{background:#1e1e1e;border:1px solid #333;border-radius:8px;color:#fff;font-size:13px;padding:7px 12px;width:180px;outline:none}
+#search:focus{border-color:#555}
+#count{color:#888;font-size:13px;flex:1}
+.sort-select{background:#1e1e1e;border:1px solid #333;border-radius:8px;color:#fff;font-size:12px;padding:6px 10px;outline:none;cursor:pointer}
+.view-btns{display:flex;gap:4px}
+.view-btn{background:#1e1e1e;border:1px solid #333;border-radius:6px;color:#999;cursor:pointer;font-size:16px;padding:6px 10px}
+.view-btn.active{background:#2e2e2e;border-color:#555;color:#fff}
+
+/* Viewer */
+.viewer{display:none;border-radius:12px;overflow:hidden;border:1px solid #222;margin-bottom:20px;background:#0a0a0a}
+.viewer.open{display:block}
+.viewer-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#141414;border-bottom:1px solid #222}
+.viewer-title{font-size:13px;color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin-right:10px}
+.viewer-close{background:#222;border:1px solid #333;border-radius:7px;color:#ccc;cursor:pointer;font-size:18px;padding:2px 10px;line-height:1.4;-webkit-tap-highlight-color:transparent}
+
+/* Main image */
+.viewer-img-area{position:relative;background:#000;display:flex;align-items:center;justify-content:center;min-height:240px}
+.viewer-img-area img{max-width:100%;max-height:60vh;object-fit:contain;display:block}
+.nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:50%;color:#fff;cursor:pointer;font-size:24px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;line-height:1;z-index:2;-webkit-tap-highlight-color:transparent}
+.nav-btn:active{background:rgba(255,255,255,.25)}
+.nav-prev{left:10px}
+.nav-next{right:10px}
+.viewer-counter{position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,.6);border-radius:20px;font-size:11px;color:#aaa;padding:3px 10px;pointer-events:none}
+
+/* Preview strip */
+.preview-strip{background:#0e0e0e;border-top:1px solid #1e1e1e;padding:12px 14px 14px}
+.preview-row{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;scrollbar-color:#333 transparent;padding-bottom:2px}
+.preview-row::-webkit-scrollbar{height:3px}
+.preview-row::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.thumb{flex:0 0 90px;cursor:pointer;border-radius:7px;overflow:hidden;border:2px solid transparent;opacity:.4;transition:opacity .2s,border-color .2s,transform .15s;scroll-snap-align:start;-webkit-tap-highlight-color:transparent}
+.thumb:hover{opacity:.7;transform:translateY(-2px)}
+.thumb.active{opacity:1;border-color:#fff}
+.thumb img{width:90px;height:60px;object-fit:cover;display:block}
+
+/* Gallery grid */
+.gallery{display:grid;gap:10px}
+.gallery.grid-small{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.gallery.grid-medium{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.gallery.grid-large{grid-template-columns:1fr}
+.card{border-radius:10px;overflow:hidden;cursor:pointer;background:#1a1a1a;-webkit-tap-highlight-color:transparent}
+.card img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;transition:.25s;user-select:none;-webkit-user-select:none}
+.empty{color:#555;font-size:14px;text-align:center;padding:60px 20px;display:none}
+</style>
+
+<div class="toolbar">
+  <input id="search" placeholder="🔍  Search..." oninput="render()">
+  <span id="count">Loading...</span>
+  <select class="sort-select" id="sortSel" onchange="render()">
+    <option value="default">Sort: Default</option>
+    <option value="name-az">Name A→Z</option>
+    <option value="name-za">Name Z→A</option>
+  </select>
+  <div class="view-btns">
+    <button class="view-btn active" onclick="setView('grid-small',this)">⊞</button>
+    <button class="view-btn"        onclick="setView('grid-medium',this)">⊟</button>
+    <button class="view-btn"        onclick="setView('grid-large',this)">☰</button>
+  </div>
+</div>
+
+<!-- Viewer -->
+<div class="viewer" id="viewer">
+  <div class="viewer-header">
+    <div class="viewer-title" id="viewerTitle"></div>
+    <button class="viewer-close" onclick="closeViewer()">✕</button>
+  </div>
+  <div class="viewer-img-area" id="imgArea">
+    <button class="nav-btn nav-prev" onclick="nav(-1)">‹</button>
+    <img id="mainImg" alt="">
+    <button class="nav-btn nav-next" onclick="nav(1)">›</button>
+    <div class="viewer-counter" id="counter"></div>
+  </div>
+  <div class="preview-strip">
+    <div class="preview-row" id="previewRow"></div>
+  </div>
+</div>
+
+<div class="gallery grid-small" id="gallery"></div>
+<div class="empty" id="emptyMsg">No images match your search.</div>
+
+<script>
+let images=[], filtered=[], idx=0, touchStartX=0;
+
+fetch("./image_cache.json")
+  .then(r=>r.json())
+  .then(data=>{
+    images=data.map((item,i)=>typeof item==='string'?{url:item,name:'Image '+(i+1)}:{url:item.url||item,name:item.name||'Image '+(i+1)});
+    render();
+  })
+  .catch(()=>{document.getElementById('count').textContent='Could not load image_cache.json';});
+
+function render(){
+  const q=document.getElementById('search').value.toLowerCase();
+  filtered=images.filter(img=>img.name.toLowerCase().includes(q));
+  const sort=document.getElementById('sortSel').value;
+  if(sort==='name-az') filtered.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(sort==='name-za') filtered.sort((a,b)=>b.name.localeCompare(a.name));
+  document.getElementById('count').textContent=filtered.length+' images';
+  document.getElementById('emptyMsg').style.display=filtered.length?'none':'block';
+  const g=document.getElementById('gallery');
+  g.innerHTML='';
+  filtered.forEach((img,i)=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.innerHTML=`<img src="${img.url}" loading="lazy" alt="${img.name}" draggable="false">`;
+    card.addEventListener('click',()=>open(i));
+    g.appendChild(card);
+  });
+  if(document.getElementById('viewer').classList.contains('open')) buildPreviews();
+}
+
+function setView(cls,btn){
+  document.getElementById('gallery').className='gallery '+cls;
+  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function open(i){
+  idx=i;
+  document.getElementById('viewer').classList.add('open');
+  document.getElementById('viewer').scrollIntoView({behavior:'smooth',block:'start'});
+  showImg();
+}
+
+function showImg(){
+  const img=filtered[idx];
+  document.getElementById('mainImg').src=img.url;
+  document.getElementById('mainImg').alt=img.name;
+  document.getElementById('viewerTitle').textContent=img.name;
+  document.getElementById('counter').textContent=(idx+1)+' / '+filtered.length;
+  buildPreviews();
+}
+
+function buildPreviews(){
+  const row=document.getElementById('previewRow');
+  row.innerHTML='';
+  filtered.forEach((img,i)=>{
+    const t=document.createElement('div');
+    t.className='thumb'+(i===idx?' active':'');
+    t.innerHTML=`<img src="${img.url}" loading="lazy" alt="${img.name}">`;
+    t.addEventListener('click',()=>{idx=i;showImg();});
+    row.appendChild(t);
+  });
+  // scroll active thumb into view
+  const thumbs=row.querySelectorAll('.thumb');
+  if(thumbs[idx]) thumbs[idx].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+
+function nav(dir){
+  idx=(idx+dir+filtered.length)%filtered.length;
+  showImg();
+}
+
+function closeViewer(){document.getElementById('viewer').classList.remove('open');}
+
+// swipe
+document.getElementById('imgArea').addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;},{passive:true});
+document.getElementById('imgArea').addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-touchStartX;
+  if(Math.abs(dx)>40) nav(dx<0?1:-1);
+},{passive:true});
+
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('viewer').classList.contains('open'))return;
+  if(e.key==='ArrowRight') nav(1);
+  if(e.key==='ArrowLeft') nav(-1);
+  if(e.key==='Escape') closeViewer();
+});
+</script>
