@@ -87,14 +87,20 @@
     .thumbs {
       position: absolute;
       bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
       gap: 8px;
-      overflow-x: auto;
       max-width: 90%;
+      overflow-x: auto;
       padding: 10px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 10px;
+      z-index: 10000;
     }
 
     .thumbs img {
+      flex: 0 0 auto;
       width: 60px;
       height: 60px;
       object-fit: cover;
@@ -107,6 +113,7 @@
     .thumbs img.active {
       opacity: 1;
       border: 2px solid white;
+      transform: scale(1.1);
     }
   </style>
 </head>
