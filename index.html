@@ -109,7 +109,7 @@ const gallery = document.getElementById("gallery");
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
 
-fetch("image_cache.json")
+fetch("./image_cache.json")
   .then(res => res.json())
   .then(data => {
     images = data;
