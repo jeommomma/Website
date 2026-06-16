@@ -8,31 +8,31 @@ body{background:#111;color:#fff;font-family:Arial;padding:20px}
 #count{color:#888;font-size:13px;flex:1}
 .sort-select{background:#1e1e1e;border:1px solid #333;border-radius:8px;color:#fff;font-size:12px;padding:6px 10px;outline:none;cursor:pointer}
 .view-btns{display:flex;gap:4px}
-.view-btn{background:#1e1e1e;border:1px solid #333;border-radius:6px;color:#999;cursor:pointer;font-size:16px;padding:6px 10px;transition:.15s}
+.view-btn{background:#1e1e1e;border:1px solid #333;border-radius:6px;color:#999;cursor:pointer;font-size:16px;padding:6px 10px}
 .view-btn.active{background:#2e2e2e;border-color:#555;color:#fff}
 .gallery{display:grid;gap:10px}
-.gallery.grid-small{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
-.gallery.grid-medium{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.gallery.grid-small{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.gallery.grid-medium{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 .gallery.grid-large{grid-template-columns:1fr}
 .card{position:relative;border-radius:10px;overflow:hidden;cursor:pointer;background:#1a1a1a}
-.card img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;transition:.25s;user-select:none}
-.card:hover img{transform:scale(1.04)}
-.card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 60%);opacity:0;transition:.2s;display:flex;flex-direction:column;justify-content:flex-end;padding:10px}
-.card:hover .card-overlay{opacity:1}
-.card-name{font-size:12px;color:#eee;font-weight:500}
+.card img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;transition:.25s;user-select:none;-webkit-user-select:none}
+.card-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.75),transparent);font-size:11px;color:#eee;padding:18px 8px 6px;opacity:0;transition:.2s}
+.card:hover .card-name{opacity:1}
 .empty{color:#555;font-size:14px;text-align:center;padding:60px 20px;display:none}
 
-/* Lightbox */
-.lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center}
-.lb.open{display:flex}
-.lb-img{max-width:90vw;max-height:85vh;object-fit:contain;border-radius:6px;display:block}
-.lb-close{position:fixed;top:16px;right:20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:50%;color:#fff;font-size:22px;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
-.lb-close:hover{background:rgba(255,255,255,.22)}
-.lb-nav{position:fixed;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:50%;color:#fff;cursor:pointer;font-size:26px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;transition:.15s;line-height:1}
-.lb-nav:hover{background:rgba(255,255,255,.22)}
-.lb-prev{left:16px}
-.lb-next{right:16px}
-.lb-label{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);border-radius:20px;font-size:12px;color:#bbb;padding:5px 14px;white-space:nowrap}
+/* Lightbox — inline block, not fixed */
+.lb-wrap{display:none;background:rgba(0,0,0,.95);border-radius:12px;margin-bottom:20px;overflow:hidden}
+.lb-wrap.open{display:block}
+.lb-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#141414;border-bottom:1px solid #222}
+.lb-title{font-size:13px;color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin-right:10px}
+.lb-close-btn{background:#222;border:1px solid #333;border-radius:7px;color:#ccc;cursor:pointer;font-size:18px;padding:2px 10px;line-height:1.4}
+.lb-img-area{position:relative;background:#000;display:flex;align-items:center;justify-content:center;min-height:260px}
+.lb-img-area img{max-width:100%;max-height:65vh;object-fit:contain;display:block}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:50%;color:#fff;cursor:pointer;font-size:24px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;line-height:1;z-index:2;-webkit-tap-highlight-color:transparent}
+.lb-nav:active{background:rgba(255,255,255,.25)}
+.lb-prev{left:10px}
+.lb-next{right:10px}
+.lb-counter{position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,.55);border-radius:20px;font-size:11px;color:#aaa;padding:3px 10px;pointer-events:none}
 </style>
 
 <div class="toolbar">
@@ -50,28 +50,31 @@ body{background:#111;color:#fff;font-family:Arial;padding:20px}
   </div>
 </div>
 
+<!-- Inline lightbox sits above the grid -->
+<div class="lb-wrap" id="lb">
+  <div class="lb-header">
+    <div class="lb-title" id="lbTitle">Image</div>
+    <button class="lb-close-btn" onclick="closeLb()">✕</button>
+  </div>
+  <div class="lb-img-area" id="lbImgArea">
+    <button class="lb-nav lb-prev" onclick="lbNav(-1)">‹</button>
+    <img id="lbImg" alt="">
+    <button class="lb-nav lb-next" onclick="lbNav(1)">›</button>
+    <div class="lb-counter" id="lbCounter"></div>
+  </div>
+</div>
+
 <div class="gallery grid-small" id="gallery"></div>
 <div class="empty" id="emptyMsg">No images match your search.</div>
 
-<!-- Lightbox -->
-<div class="lb" id="lb" onclick="lbBgClick(event)">
-  <button class="lb-close" onclick="closeLb()">✕</button>
-  <button class="lb-nav lb-prev" onclick="lbNav(-1)">‹</button>
-  <img class="lb-img" id="lbImg" alt="">
-  <button class="lb-nav lb-next" onclick="lbNav(1)">›</button>
-  <div class="lb-label" id="lbLabel"></div>
-</div>
-
 <script>
 let images=[], filtered=[], lbIdx=0;
+let touchStartX=0;
 
 fetch("./image_cache.json")
   .then(r=>r.json())
   .then(data=>{
-    images=data.map((item,i)=>{
-      if(typeof item==='string') return{url:item,name:'Image '+(i+1)};
-      return{url:item.url||item,name:item.name||'Image '+(i+1)};
-    });
+    images=data.map((item,i)=>typeof item==='string'?{url:item,name:'Image '+(i+1)}:{url:item.url||item,name:item.name||'Image '+(i+1)});
     render();
   })
   .catch(()=>{document.getElementById('count').textContent='Could not load image_cache.json';});
@@ -84,14 +87,14 @@ function render(){
   else if(sort==='name-za') filtered.sort((a,b)=>b.name.localeCompare(a.name));
   document.getElementById('count').textContent=filtered.length+' images';
   document.getElementById('emptyMsg').style.display=filtered.length?'none':'block';
-  const gallery=document.getElementById('gallery');
-  gallery.innerHTML='';
+  const g=document.getElementById('gallery');
+  g.innerHTML='';
   filtered.forEach((img,i)=>{
     const card=document.createElement('div');
     card.className='card';
-    card.innerHTML=`<img src="${img.url}" loading="lazy" alt="${img.name}" draggable="false"><div class="card-overlay"><div class="card-name">${img.name}</div></div>`;
-    card.onclick=()=>openLb(i);
-    gallery.appendChild(card);
+    card.innerHTML=`<img src="${img.url}" loading="lazy" alt="${img.name}" draggable="false"><div class="card-name">${img.name}</div>`;
+    card.addEventListener('click',()=>openLb(i));
+    g.appendChild(card);
   });
 }
 
@@ -104,14 +107,17 @@ function setView(cls,btn){
 function openLb(i){
   lbIdx=i;
   showLb();
-  document.getElementById('lb').classList.add('open');
+  const lb=document.getElementById('lb');
+  lb.classList.add('open');
+  lb.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function showLb(){
   const img=filtered[lbIdx];
   document.getElementById('lbImg').src=img.url;
   document.getElementById('lbImg').alt=img.name;
-  document.getElementById('lbLabel').textContent=img.name+'  ·  '+(lbIdx+1)+' / '+filtered.length;
+  document.getElementById('lbTitle').textContent=img.name;
+  document.getElementById('lbCounter').textContent=(lbIdx+1)+' / '+filtered.length;
 }
 
 function closeLb(){document.getElementById('lb').classList.remove('open');}
@@ -121,12 +127,18 @@ function lbNav(dir){
   showLb();
 }
 
-function lbBgClick(e){if(e.target===document.getElementById('lb'))closeLb();}
+// swipe support
+const imgArea=document.getElementById('lbImgArea');
+imgArea.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;},{passive:true});
+imgArea.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-touchStartX;
+  if(Math.abs(dx)>40) lbNav(dx<0?1:-1);
+},{passive:true});
 
 document.addEventListener('keydown',e=>{
   if(!document.getElementById('lb').classList.contains('open'))return;
   if(e.key==='ArrowRight') lbNav(1);
   if(e.key==='ArrowLeft')  lbNav(-1);
-  if(e.key==='Escape')     closeLb();
+  if(e.key==='Escape') closeLb();
 });
 </script>
