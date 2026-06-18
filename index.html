@@ -3,36 +3,48 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#111;color:#fff;font-family:Arial;padding:20px}
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-#search{background:#1e1e1e;border:1px solid #333;border-radius:8px;color:#fff;font-size:13px;padding:7px 12px;width:200px;outline:none}
+#search{background:#1e1e1e;border:1px solid #333;border-radius:8px;color:#fff;font-size:13px;padding:7px 12px;width:180px;outline:none}
 #search:focus{border-color:#555}
 #count{color:#888;font-size:13px;flex:1}
 .sort-select{background:#1e1e1e;border:1px solid #333;border-radius:8px;color:#fff;font-size:12px;padding:6px 10px;outline:none;cursor:pointer}
 .view-btns{display:flex;gap:4px}
 .view-btn{background:#1e1e1e;border:1px solid #333;border-radius:6px;color:#999;cursor:pointer;font-size:16px;padding:6px 10px}
 .view-btn.active{background:#2e2e2e;border-color:#555;color:#fff}
+
+/* Viewer */
+.viewer{display:none;border-radius:12px;overflow:hidden;border:1px solid #222;margin-bottom:20px;background:#0a0a0a}
+.viewer.open{display:block}
+.viewer-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#141414;border-bottom:1px solid #222}
+.viewer-title{font-size:13px;color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin-right:10px}
+.viewer-close{background:#222;border:1px solid #333;border-radius:7px;color:#ccc;cursor:pointer;font-size:18px;padding:2px 10px;line-height:1.4;-webkit-tap-highlight-color:transparent}
+
+/* Main image */
+.viewer-img-area{position:relative;background:#000;display:flex;align-items:center;justify-content:center;min-height:240px}
+.viewer-img-area img{max-width:100%;max-height:60vh;object-fit:contain;display:block}
+.nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:50%;color:#fff;cursor:pointer;font-size:24px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;line-height:1;z-index:2;-webkit-tap-highlight-color:transparent}
+.nav-btn:active{background:rgba(255,255,255,.25)}
+.nav-prev{left:10px}
+.nav-next{right:10px}
+.viewer-counter{position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,.6);border-radius:20px;font-size:11px;color:#aaa;padding:3px 10px;pointer-events:none}
+
+/* Preview strip */
+.preview-strip{background:#0e0e0e;border-top:1px solid #1e1e1e;padding:12px 14px 14px}
+.preview-row{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;scrollbar-color:#333 transparent;padding-bottom:2px}
+.preview-row::-webkit-scrollbar{height:3px}
+.preview-row::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.thumb{flex:0 0 90px;cursor:pointer;border-radius:7px;overflow:hidden;border:2px solid transparent;opacity:.4;transition:opacity .2s,border-color .2s,transform .15s;scroll-snap-align:start;-webkit-tap-highlight-color:transparent}
+.thumb:hover{opacity:.7;transform:translateY(-2px)}
+.thumb.active{opacity:1;border-color:#fff}
+.thumb img{width:90px;height:60px;object-fit:cover;display:block}
+
+/* Gallery grid */
 .gallery{display:grid;gap:10px}
 .gallery.grid-small{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
 .gallery.grid-medium{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 .gallery.grid-large{grid-template-columns:1fr}
-.card{position:relative;border-radius:10px;overflow:hidden;cursor:pointer;background:#1a1a1a}
+.card{border-radius:10px;overflow:hidden;cursor:pointer;background:#1a1a1a;-webkit-tap-highlight-color:transparent}
 .card img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;transition:.25s;user-select:none;-webkit-user-select:none}
-.card-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.75),transparent);font-size:11px;color:#eee;padding:18px 8px 6px;opacity:0;transition:.2s}
-.card:hover .card-name{opacity:1}
 .empty{color:#555;font-size:14px;text-align:center;padding:60px 20px;display:none}
-
-/* Lightbox — inline block, not fixed */
-.lb-wrap{display:none;background:rgba(0,0,0,.95);border-radius:12px;margin-bottom:20px;overflow:hidden}
-.lb-wrap.open{display:block}
-.lb-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#141414;border-bottom:1px solid #222}
-.lb-title{font-size:13px;color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin-right:10px}
-.lb-close-btn{background:#222;border:1px solid #333;border-radius:7px;color:#ccc;cursor:pointer;font-size:18px;padding:2px 10px;line-height:1.4}
-.lb-img-area{position:relative;background:#000;display:flex;align-items:center;justify-content:center;min-height:260px}
-.lb-img-area img{max-width:100%;max-height:65vh;object-fit:contain;display:block}
-.lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:50%;color:#fff;cursor:pointer;font-size:24px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;line-height:1;z-index:2;-webkit-tap-highlight-color:transparent}
-.lb-nav:active{background:rgba(255,255,255,.25)}
-.lb-prev{left:10px}
-.lb-next{right:10px}
-.lb-counter{position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,.55);border-radius:20px;font-size:11px;color:#aaa;padding:3px 10px;pointer-events:none}
 </style>
 
 <div class="toolbar">
@@ -50,17 +62,20 @@ body{background:#111;color:#fff;font-family:Arial;padding:20px}
   </div>
 </div>
 
-<!-- Inline lightbox sits above the grid -->
-<div class="lb-wrap" id="lb">
-  <div class="lb-header">
-    <div class="lb-title" id="lbTitle">Image</div>
-    <button class="lb-close-btn" onclick="closeLb()">✕</button>
+<!-- Viewer -->
+<div class="viewer" id="viewer">
+  <div class="viewer-header">
+    <div class="viewer-title" id="viewerTitle"></div>
+    <button class="viewer-close" onclick="closeViewer()">✕</button>
   </div>
-  <div class="lb-img-area" id="lbImgArea">
-    <button class="lb-nav lb-prev" onclick="lbNav(-1)">‹</button>
-    <img id="lbImg" alt="">
-    <button class="lb-nav lb-next" onclick="lbNav(1)">›</button>
-    <div class="lb-counter" id="lbCounter"></div>
+  <div class="viewer-img-area" id="imgArea">
+    <button class="nav-btn nav-prev" onclick="nav(-1)">‹</button>
+    <img id="mainImg" alt="">
+    <button class="nav-btn nav-next" onclick="nav(1)">›</button>
+    <div class="viewer-counter" id="counter"></div>
+  </div>
+  <div class="preview-strip">
+    <div class="preview-row" id="previewRow"></div>
   </div>
 </div>
 
@@ -68,8 +83,7 @@ body{background:#111;color:#fff;font-family:Arial;padding:20px}
 <div class="empty" id="emptyMsg">No images match your search.</div>
 
 <script>
-let images=[], filtered=[], lbIdx=0;
-let touchStartX=0;
+let images=[], filtered=[], idx=0, touchStartX=0;
 
 fetch("./image_cache.json")
   .then(r=>r.json())
@@ -92,10 +106,11 @@ function render(){
   filtered.forEach((img,i)=>{
     const card=document.createElement('div');
     card.className='card';
-    card.innerHTML=`<img src="${img.url}" loading="lazy" alt="${img.name}" draggable="false"><div class="card-name">${img.name}</div>`;
-    card.addEventListener('click',()=>openLb(i));
+    card.innerHTML=`<img src="${img.url}" loading="lazy" alt="${img.name}" draggable="false">`;
+    card.addEventListener('click',()=>open(i));
     g.appendChild(card);
   });
+  if(document.getElementById('viewer').classList.contains('open')) buildPreviews();
 }
 
 function setView(cls,btn){
@@ -104,41 +119,55 @@ function setView(cls,btn){
   btn.classList.add('active');
 }
 
-function openLb(i){
-  lbIdx=i;
-  showLb();
-  const lb=document.getElementById('lb');
-  lb.classList.add('open');
-  lb.scrollIntoView({behavior:'smooth',block:'start'});
+function open(i){
+  idx=i;
+  document.getElementById('viewer').classList.add('open');
+  document.getElementById('viewer').scrollIntoView({behavior:'smooth',block:'start'});
+  showImg();
 }
 
-function showLb(){
-  const img=filtered[lbIdx];
-  document.getElementById('lbImg').src=img.url;
-  document.getElementById('lbImg').alt=img.name;
-  document.getElementById('lbTitle').textContent=img.name;
-  document.getElementById('lbCounter').textContent=(lbIdx+1)+' / '+filtered.length;
+function showImg(){
+  const img=filtered[idx];
+  document.getElementById('mainImg').src=img.url;
+  document.getElementById('mainImg').alt=img.name;
+  document.getElementById('viewerTitle').textContent=img.name;
+  document.getElementById('counter').textContent=(idx+1)+' / '+filtered.length;
+  buildPreviews();
 }
 
-function closeLb(){document.getElementById('lb').classList.remove('open');}
-
-function lbNav(dir){
-  lbIdx=(lbIdx+dir+filtered.length)%filtered.length;
-  showLb();
+function buildPreviews(){
+  const row=document.getElementById('previewRow');
+  row.innerHTML='';
+  filtered.forEach((img,i)=>{
+    const t=document.createElement('div');
+    t.className='thumb'+(i===idx?' active':'');
+    t.innerHTML=`<img src="${img.url}" loading="lazy" alt="${img.name}">`;
+    t.addEventListener('click',()=>{idx=i;showImg();});
+    row.appendChild(t);
+  });
+  // scroll active thumb into view
+  const thumbs=row.querySelectorAll('.thumb');
+  if(thumbs[idx]) thumbs[idx].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
 }
 
-// swipe support
-const imgArea=document.getElementById('lbImgArea');
-imgArea.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;},{passive:true});
-imgArea.addEventListener('touchend',e=>{
+function nav(dir){
+  idx=(idx+dir+filtered.length)%filtered.length;
+  showImg();
+}
+
+function closeViewer(){document.getElementById('viewer').classList.remove('open');}
+
+// swipe
+document.getElementById('imgArea').addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;},{passive:true});
+document.getElementById('imgArea').addEventListener('touchend',e=>{
   const dx=e.changedTouches[0].clientX-touchStartX;
-  if(Math.abs(dx)>40) lbNav(dx<0?1:-1);
+  if(Math.abs(dx)>40) nav(dx<0?1:-1);
 },{passive:true});
 
 document.addEventListener('keydown',e=>{
-  if(!document.getElementById('lb').classList.contains('open'))return;
-  if(e.key==='ArrowRight') lbNav(1);
-  if(e.key==='ArrowLeft')  lbNav(-1);
-  if(e.key==='Escape') closeLb();
+  if(!document.getElementById('viewer').classList.contains('open'))return;
+  if(e.key==='ArrowRight') nav(1);
+  if(e.key==='ArrowLeft') nav(-1);
+  if(e.key==='Escape') closeViewer();
 });
 </script>
